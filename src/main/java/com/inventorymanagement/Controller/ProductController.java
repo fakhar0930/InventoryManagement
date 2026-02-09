@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
@@ -47,6 +48,13 @@ public class ProductController {
         return productService.getAllProduct();
     }
 
+
+    //http://localhost:8080/products/all/groupby
+    @GetMapping("/all/groupby")
+    public Map<String,List<ProductEntity>> groupByCategoryProduct(){
+        return productService.groupByCategory();
+    }
+
     //http://localhost:8080/products/category/Electronics  DOne
 
     @GetMapping("/category/{category}")
@@ -54,7 +62,7 @@ public class ProductController {
         return productService.getProductByCategory(category);
     }
 
-    //http://localhost:8080/products/update-stock
+    //http://localhost:8080/products/update-stock  Done
     @PatchMapping("/update-stock")
     public ProductDTO updateStock(@RequestBody @Validated ProductDTO productDTO) {
         return productService.updateStock(productDTO);
@@ -72,3 +80,4 @@ public class ProductController {
         return productService.buyProduct(name, quantity);
     }
 }
+

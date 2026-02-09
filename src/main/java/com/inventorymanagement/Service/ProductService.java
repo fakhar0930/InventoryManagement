@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,14 @@ public class ProductService {
                 .collect(Collectors.toList());
 
         return filteredProductByCategory;
+    }
+
+    public Map<String,List<ProductEntity>> groupByCategory(){
+        List<ProductEntity> product = productRepo.findAll();
+
+        Map<String,List<ProductEntity>> groupBy= product.stream().collect(Collectors.groupingBy(ProductEntity::getProductCategory));
+
+        return groupBy;
     }
 
 
