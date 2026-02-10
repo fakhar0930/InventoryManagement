@@ -1,9 +1,12 @@
 package com.inventorymanagement.Service;
 
 import com.inventorymanagement.DTOs.ProductDTO;
+import com.inventorymanagement.Entity.Order;
 import com.inventorymanagement.Entity.ProductEntity;
 import com.inventorymanagement.Repository.ProductRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +19,15 @@ import java.util.stream.Collectors;
 public class ProductService {
 
     private final ProductRepo productRepo;
+    private final OrderService orderService;
+
+    public String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        return auth.getName(); // admin1 / admin2
+    }
 
     public ProductEntity addProduct(ProductEntity product){
         return productRepo.save(product);
@@ -69,9 +81,20 @@ public class ProductService {
             ProductEntity newProdcut = product.get();
             if (newProdcut.getProductStock()<quantity){
                 throw new RuntimeException("Product is not Available with Selected Quantity. Only " + newProdcut.getProductStock() + " Piece Available as of now");
-            } else
+            } else {
+                Order order = new Order();
+                order.setProductId(newProdcut.getProductId());
+                order.setProductName(newProdcut.getProductName());
+                order.setProductPrice(newProdcut.getProductPrice());
+                order.setProductQuantity(quantity);
+                order.setBuyerName(getCurrentUsername());
+                order.setProductRevenue(quantity * newProdcut.getProductPrice());
+
+
                 newProdcut.setProductStock(newProdcut.getProductStock()-quantity);
-            productRepo.save(newProdcut);
+                productRepo.save(newProdcut);
+                orderService.orderCreation(order);
+            }
         }
         return "You Bought Product: "+ name + " Successfully :) Keep Shopping With US.";
     }
@@ -94,12 +117,27 @@ public class ProductService {
     }
 
     public Map<String,List<ProductEntity>> groupByCategory(){
+
+        //Finding All Products and then below Grouping It
         List<ProductEntity> product = productRepo.findAll();
 
-        Map<String,List<ProductEntity>> groupBy= product.stream().collect(Collectors.groupingBy(ProductEntity::getProductCategory));
+        //Grouping Products by Categories like Electronics,Accessories,Office,Power ETC
+        Map<String,List<ProductEntity>> groupBy= product
+                .stream()
+                .collect(Collectors.groupingBy(ProductEntity::getProductCategory));
 
         return groupBy;
     }
 
+    public List<String> getCategories(){
+       List<ProductEntity> allProduct= productRepo.findAll();
+       List<String> categoryList= allProduct
+               .stream()
+               .map(ProductEntity::getProductCategory)
+               .distinct()
+               .collect(Collectors.toList());
+       return categoryList;
+    }
 
 }
+

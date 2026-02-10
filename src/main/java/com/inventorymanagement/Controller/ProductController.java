@@ -26,7 +26,7 @@ public class ProductController {
 
     //http:localhost:8080/products/addall  Done
     @PostMapping("/addall")
-    public List<ProductEntity> addProduct(@RequestBody @Validated List<ProductEntity> product) {
+    public List<ProductEntity> addProducts(@RequestBody @Validated List<ProductEntity> product) {
         return productService.addAllProduct(product);
     }
 
@@ -78,6 +78,12 @@ public class ProductController {
     @PatchMapping("/buy")
     public String buyProduct(@RequestParam String name, @RequestParam int quantity) {
         return productService.buyProduct(name, quantity);
+    }
+
+    //http://localhost:8080/products/all/categories
+    @GetMapping("/all/categories")
+    public List<String> getCategories(){
+        return productService.getCategories();
     }
 }
 
