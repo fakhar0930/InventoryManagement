@@ -13,10 +13,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/products")
-@RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     //http:localhost:8080/products/add   Done
     @PostMapping("/add")
@@ -82,7 +85,7 @@ public class ProductController {
 
     //http://localhost:8080/products/all/categories
     @GetMapping("/all/categories")
-    public List<String> getCategories(){
+    public List<String> getCategories() {
         return productService.getCategories();
     }
 }
